@@ -1,9 +1,9 @@
 import pygame
 
 width = 1000
-height = 900
+height = 700
 
-g = 0.1
+g = 0.8
 
 vx = 0
 vy = 0
@@ -12,9 +12,9 @@ pygame.init()
 window = pygame.display.set_mode((width,height))
 clock = pygame.time.Clock()
 
-player = pygame.Rect(450,400,50,80)
+player = pygame.Rect(450,100,50,80)
 
-gnd = pygame.Rect(0,800,1000,100)
+gnd = pygame.Rect(0,600,1000,100)
 
 def correct():
     while player.colliderect(gnd):
@@ -31,6 +31,8 @@ def draw():
 
 jumped = False
 
+speed = 0.8
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -40,14 +42,17 @@ while True:
     keys = pygame.key.get_pressed()
 
     if keys[pygame.K_a]:
-        player.x -= 10
+        vx -= speed
     if keys[pygame.K_d]:
-        player.x += 10
-    if keys[pygame.K_w] and jumped == False:
+        vx += speed
+    if (keys[pygame.K_SPACE] or keys[pygame.K_w]) and jumped == False:
         jumped = True
-        vy -= 5
+        vy -= 15
+
+    vx = vx * 0.9
 
     player.y += vy
+    player.x += vx
 
     if player.colliderect(gnd):
         jumped = False
