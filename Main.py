@@ -1,37 +1,31 @@
-import pygame
+import pygame, math
 
 width = 1000
-height = 700
+height = 800
 
 g = 0.8
 
 vx = 0
 vy = 0
 
+speed = 1
+
+jumped = False
+
 pygame.init()
 window = pygame.display.set_mode((width,height))
 clock = pygame.time.Clock()
 
-player = pygame.Rect(450,100,50,80)
+player = pygame.Rect(450,100,50,50)
 
-gnd = pygame.Rect(0,600,1000,100)
-
-def correct():
-    while player.colliderect(gnd):
-        player.y -= 1
-        if player.colliderect(gnd) != True:
-            player.y += 1
-            return
-
+collision = [pygame.Rect(0,700,1000,100), # ground
+             pygame.Rect(0,600,100,800)] # test wall
 
 def draw():
     window.fill("white")
+    for obj in collision:
+        pygame.draw.rect(window, (0,255,0), obj)
     pygame.draw.rect(window, (0,0,255), player)
-    pygame.draw.rect(window, (0,255,0), gnd)
-
-jumped = False
-
-speed = 0.8
 
 while True:
     for event in pygame.event.get():
@@ -45,22 +39,37 @@ while True:
         vx -= speed
     if keys[pygame.K_d]:
         vx += speed
-    if (keys[pygame.K_SPACE] or keys[pygame.K_w]) and jumped == False:
+    if (keys[pygame.K_SPACE] or keys[pygame.K_w]) and not jumped:
         jumped = True
-        vy -= 15
+        vy -= 20
 
+    # Actualizacion de la posicion del jugador y checkeo de colision en el eje X
     vx = vx * 0.9
+    player.x += round(vx)
 
-    player.y += vy
-    player.x += vx
+    for obj in collision:
+        if player.colliderect(obj):
+            if vx > 0:
+                player.right = obj.left
+                vx = 0
+            elif vx < 0:
+                player.left = obj.right
+                vx = 0
+    
+    # Actualizacion de la posicion del jugador y checkeo de colision en el eje Y
+    vy += g
+    player.y += round(vy)
 
-    if player.colliderect(gnd):
-        jumped = False
-        vy = 0
-        correct()
-    elif player.colliderect(gnd) != True:
-        vy += g
-        
+    for obj in collision:
+        if player.colliderect(obj):
+            jumped = False
+            if vy < 0:
+                player.top = obj.bottom
+                vy = 0
+            elif vy > 0:
+                player.bottom = obj.top
+                vy = 0
+
     draw()
     pygame.display.update()
     clock.tick(60)
