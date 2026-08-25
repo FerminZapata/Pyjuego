@@ -18,8 +18,11 @@ clock = pygame.time.Clock()
 
 player = pygame.Rect(450,100,50,50)
 
-collision = [pygame.Rect(0,700,1000,100), # ground
-             pygame.Rect(0,600,100,800)] # test wall
+collision = [pygame.Rect(0,700,1000,100), # piso
+             pygame.Rect(0,600,100,800),  # mini pared
+             pygame.Rect(150,400,200,50), # plataforma 1
+             pygame.Rect(700,400,200,50) # plataforma 2
+             ]
 
 def draw():
     window.fill("white")
@@ -41,7 +44,7 @@ while True:
         vx += speed
     if (keys[pygame.K_SPACE] or keys[pygame.K_w]) and not jumped:
         jumped = True
-        vy -= 20
+        vy -= 19
 
     # Actualizacion de la posicion del jugador y checkeo de colision en el eje X
     vx = vx * 0.9
@@ -62,11 +65,11 @@ while True:
 
     for obj in collision:
         if player.colliderect(obj):
-            jumped = False
             if vy < 0:
                 player.top = obj.bottom
                 vy = 0
             elif vy > 0:
+                jumped = False
                 player.bottom = obj.top
                 vy = 0
 
