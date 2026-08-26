@@ -1,7 +1,4 @@
-import pygame, math
-
-width = 1000
-height = 800
+import pygame, os, random
 
 g = 0.8
 
@@ -13,29 +10,115 @@ speed = 1
 jumped = False
 
 pygame.init()
+
+font = pygame.font.SysFont(None, 30)
+
+textbox = pygame.Rect(0,50,350,75)
+
+width = pygame.display.Info().current_w
+height = pygame.display.Info().current_h
+
 window = pygame.display.set_mode((width,height))
 clock = pygame.time.Clock()
 
+bgnd = pygame.image.load(os.path.join(os.path.dirname(__file__),"bgnd.png")).convert_alpha()
+bgnd = pygame.transform.scale(bgnd,(width,height))
+
 player = pygame.Rect(450,100,50,50)
 
-collision = [pygame.Rect(0,700,1000,100), # piso
+collision = [pygame.Rect(0,height-50,width,50), # piso
              pygame.Rect(0,600,100,800),  # mini pared
-             pygame.Rect(150,400,200,50), # plataforma 1
-             pygame.Rect(700,400,200,50) # plataforma 2
+             pygame.Rect(300,400,200,50), # plataforma 1
+             pygame.Rect(width - 500,400,200,50), # plataforma 2
+             pygame.Rect(-10,0,10,height), # pared 1
+             pygame.Rect(width,0,10,height) # pared 2
              ]
 
+points = []
+
+point_count = 0
+
+class point:
+    def __init__(self,type):
+        self.last = None
+        self.cool = 10000
+        self.type = type
+        self.pos = (random.randint(50,width-50),0)
+        if type == 1:
+            size = 15
+            self.points = 5
+            self.color = (75,235,235)
+        elif type == 2:
+            size = 30
+            self.points = 15
+            self.color = (226,80,248)
+        elif type == 3:
+                    size = 40
+                    self.points = 30
+                    self.color = (255,100,100)
+        else:
+            size = 15
+            self.points = 5
+            self.color = (75,235,235)
+        self.surf = pygame.Rect(self.pos[0],self.pos[1],size,size)
+        self.delete = False
+
+    def update(self):
+        self.surf.y += 2
+        for surf in collision:
+            if surf.colliderect(self.surf):
+                if self.last == None:
+                    self.last = pygame.time.get_ticks()
+                self.surf.bottom = surf.top
+                now = pygame.time.get_ticks()
+                if now - self.last >= self.cool:
+                    self.delete = True
+        if self.surf.colliderect(player):
+            self.delete = True
+        pygame.draw.rect(window, self.color, self.surf)
+
+def create_points():
+    obj = point(random.randint(1,3))
+    return obj
+
 def draw():
-    window.fill("white")
+    window.blit(bgnd,(0,0))
     for obj in collision:
-        pygame.draw.rect(window, (0,255,0), obj)
+        pygame.draw.rect(window, (70,130,53), obj)
+    for obj in points:
+        obj.update()
     pygame.draw.rect(window, (0,0,255), player)
+    pygame.draw.rect(window, (0,0,0), textbox)
+    text = font.render(f"OBJETIVO: conseguir 300 puntos",True,(0,255,0))
+    window.blit(text, (5,65))
+    text = font.render(f"Puntaje: {point_count}",True,(0,255,0))
+    window.blit(text, (5,95))
+
+def update_points(points):
+    score = point_count
+    for obj in points:
+        if obj.delete and obj.surf.colliderect(player):
+            score += obj.points
+            points.remove(obj)
+        elif obj.delete:
+            points.remove(obj)
+    return points,score
+
+last = pygame.time.get_ticks()
 
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
-    
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_q:
+                points.append(create_points())
+
+    if pygame.time.get_ticks() - last > 2000:
+        points.append(create_points())
+        last = pygame.time.get_ticks()
+
     keys = pygame.key.get_pressed()
 
     if keys[pygame.K_a]:
@@ -74,5 +157,8 @@ while True:
                 vy = 0
 
     draw()
+
+    points, point_count = update_points(points)
+
     pygame.display.update()
     clock.tick(60)
