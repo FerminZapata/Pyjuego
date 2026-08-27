@@ -39,11 +39,11 @@ def main(font,width,height,window,clock):
             self.pos = (random.randint(50,width-50),0)
             if type == 1:
                 size = 15
-                self.points = 5
+                self.points = 10
                 self.color = (75,235,235)
             elif type == 2:
                 size = 30
-                self.points = 15
+                self.points = 20
                 self.color = (226,80,248)
             elif type == 3:
                         size = 40
@@ -100,6 +100,31 @@ def main(font,width,height,window,clock):
                 points.remove(obj)
         return points,score
 
+    trans_surf = pygame.surface.Surface((width,height))
+    
+    trans_effect = 255
+
+    def intro(trans_effect):
+        while trans_effect >= 0:
+            draw()
+            trans_surf.set_alpha(round(trans_effect))
+            window.blit(trans_surf,(0,0))
+            trans_effect -= 10
+            pygame.display.update()
+            clock.tick(60)
+        return trans_effect
+
+    def outro(trans_effect):
+        while trans_effect <= 255:
+            draw()
+            trans_surf.set_alpha(round(trans_effect))
+            window.blit(trans_surf,(0,0))
+            trans_effect += 5
+            pygame.display.update()
+            clock.tick(60)
+        return trans_effect
+    trans_effect = intro(trans_effect)
+    
     last = pygame.time.get_ticks()
 
     while True:
@@ -165,8 +190,9 @@ def main(font,width,height,window,clock):
             last = pygame.time.get_ticks()
 
         if end:
-            if pygame.time.get_ticks() - last >= 6000:
+            if pygame.time.get_ticks() - last >= 3000:
                 break
 
         pygame.display.update()
         clock.tick(60)
+    trans_effect = outro(trans_effect)

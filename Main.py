@@ -1,4 +1,4 @@
-import pygame, Gameplay
+import pygame, Gameplay,Menu
 
 pygame.init()
 
@@ -11,15 +11,9 @@ window = pygame.display.set_mode((width,height))
 clock = pygame.time.Clock()
 
 while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            exit()
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_q:
-                Gameplay.main(font,width,height,window,clock)
-
-    window.fill("white")
-    
-    pygame.display.update()
-    clock.tick(60)
+    action = Menu.main(width,height,window,clock)
+    if action == "quit":
+        pygame.quit()
+        exit()
+    elif action == "start":
+        Gameplay.main(font,width,height,window,clock)
