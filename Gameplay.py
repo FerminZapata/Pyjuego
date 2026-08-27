@@ -20,9 +20,9 @@ def main(font,width,height,window,clock):
     player = pygame.Rect(450,100,50,50)
 
     collision = [pygame.Rect(0,height-50,width,50), # piso
-                 pygame.Rect(0,600,100,800),  # mini pared
-                 pygame.Rect(300,400,200,50), # plataforma 1
-                 pygame.Rect(width - 500,400,200,50), # plataforma 2
+                 pygame.Rect(0,height-200,100,200),  # mini pared
+                 pygame.Rect(width/6,height-400,width/4,50), # plataforma 1
+                 pygame.Rect((width - width/4) - width/6,height-400,width/4,50), # plataforma 2
                  pygame.Rect(-10,0,10,height), # pared 1
                  pygame.Rect(width,0,10,height) # pared 2
                  ]
